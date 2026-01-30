@@ -118,7 +118,7 @@ describe('ProductDetail Component', () => {
     expect(mockProductService.getProduct).toHaveBeenCalledWith(999);
   });
 
-  it('displays low stock warning when stock is below threshold', async () => {
+  it('displays stock value for low stock products', async () => {
     // Arrange
     mockProductService.getProduct.mockResolvedValue(mockLowStockProduct);
 
@@ -130,12 +130,10 @@ describe('ProductDetail Component', () => {
       expect(screen.getByText('Limited Edition Product')).toBeInTheDocument();
     });
 
-    // Verify low stock is displayed
+    // Verify low stock value is displayed
     const stockValue = screen.getByText('5');
     expect(stockValue).toBeInTheDocument();
 
-    // Note: If there's a visual indicator for low stock (e.g., red color, warning icon),
-    // we would test for that here. Currently, the component displays the stock value
-    // without special styling for low stock, so we verify the low number is shown.
+    // The component displays the stock value without special styling for low stock
   });
 });

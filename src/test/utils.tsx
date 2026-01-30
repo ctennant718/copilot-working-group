@@ -37,7 +37,7 @@ export function renderWithProviders(
     },
   });
 
-  function Wrapper({ children }: { children: React.ReactNode }) {
+  function Wrapper() {
     return (
       <QueryClientProvider client={queryClient}>
         <CartProvider>
