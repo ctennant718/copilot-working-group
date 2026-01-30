@@ -12,9 +12,7 @@ vi.mock('../../services', () => ({
   },
 }));
 
-const mockProductService = productService.productService as {
-  getProduct: ReturnType<typeof vi.fn>;
-};
+const mockProductService = vi.mocked(productService.productService);
 
 describe('ProductDetail Component', () => {
   const mockProduct: Product = {
