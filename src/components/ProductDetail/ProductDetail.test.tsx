@@ -5,7 +5,6 @@ import { ProductDetail } from './index';
 import type { Product } from '../../types/product';
 import * as productService from '../../services';
 
-// Mock the product service
 vi.mock('../../services', () => ({
   productService: {
     getProduct: vi.fn(),
@@ -42,55 +41,40 @@ describe('ProductDetail Component', () => {
   });
 
   it('renders product information correctly when data is loaded', async () => {
-    // Arrange
     mockProductService.getProduct.mockResolvedValue(mockProduct);
-
-    // Act
     renderWithProviders(<ProductDetail />, { productId: '1' });
 
-    // Assert - Wait for product data to load and verify all key information is displayed
     await waitFor(() => {
       expect(screen.getByText('iPhone 12 Pro')).toBeInTheDocument();
     });
 
-    // Verify product details
     expect(screen.getByText('$1299.99')).toBeInTheDocument();
     expect(screen.getByText('A premium smartphone with advanced features')).toBeInTheDocument();
-
-    // Verify product metadata
     expect(screen.getByText('Apple')).toBeInTheDocument();
     expect(screen.getByText('smartphones')).toBeInTheDocument();
     expect(screen.getByText('25')).toBeInTheDocument();
     expect(screen.getByText(/4\.7/)).toBeInTheDocument();
 
-    // Verify image is rendered
     const image = screen.getByAltText('iPhone 12 Pro');
     expect(image).toBeInTheDocument();
     expect(image).toHaveAttribute('src', 'https://example.com/image1.jpg');
 
-    // Verify Add to Cart button
     expect(screen.getByText('Add to Cart')).toBeInTheDocument();
-
-    // Verify navigation link
     expect(screen.getByText('← Back to Products')).toBeInTheDocument();
   });
 
   it('handles loading state appropriately', async () => {
-    // Arrange - Create a promise that doesn't resolve immediately
     let resolveProduct: (value: Product) => void;
     const productPromise = new Promise<Product>((resolve) => {
       resolveProduct = resolve;
     });
     mockProductService.getProduct.mockReturnValue(productPromise);
 
-    // Act
     renderWithProviders(<ProductDetail />, { productId: '1' });
 
-    // Assert - Product information should not be visible during loading
     expect(screen.queryByText('iPhone 12 Pro')).not.toBeInTheDocument();
     expect(screen.queryByText('$1299.99')).not.toBeInTheDocument();
 
-    // Resolve the promise and verify product appears
     resolveProduct!(mockProduct);
     await waitFor(() => {
       expect(screen.getByText('iPhone 12 Pro')).toBeInTheDocument();
@@ -98,40 +82,25 @@ describe('ProductDetail Component', () => {
   });
 
   it('handles error state when product fails to load', async () => {
-    // Arrange
-    const errorMessage = 'Failed to fetch product 999';
-    mockProductService.getProduct.mockRejectedValue(new Error(errorMessage));
-
-    // Act
+    mockProductService.getProduct.mockRejectedValue(new Error('Failed to fetch product 999'));
     renderWithProviders(<ProductDetail />, { productId: '999' });
 
-    // Assert - Product information should not be displayed when there's an error
     await waitFor(() => {
-      // The component should not render any product details
       expect(screen.queryByText('iPhone 12 Pro')).not.toBeInTheDocument();
       expect(screen.queryByText(/\$/)).not.toBeInTheDocument();
     });
 
-    // Verify that the service was called with the correct ID
     expect(mockProductService.getProduct).toHaveBeenCalledWith(999);
   });
 
   it('displays stock value for low stock products', async () => {
-    // Arrange
     mockProductService.getProduct.mockResolvedValue(mockLowStockProduct);
-
-    // Act
     renderWithProviders(<ProductDetail />, { productId: '2' });
 
-    // Assert - Wait for product to load
     await waitFor(() => {
       expect(screen.getByText('Limited Edition Product')).toBeInTheDocument();
     });
 
-    // Verify low stock value is displayed
-    const stockValue = screen.getByText('5');
-    expect(stockValue).toBeInTheDocument();
-
-    // The component displays the stock value without special styling for low stock
+    expect(screen.getByText('5')).toBeInTheDocument();
   });
 });
